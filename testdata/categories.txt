@@ -1,0 +1,27 @@
+{
+    "category": "computers"
+}
+{
+    "category": "audio"
+}
+{
+    "category": "home-entertainment"
+}
+{
+    "category": "wearables"
+}
+{
+    "category": "gaming"
+}
+{
+    "category": "networking"
+}
+{
+    "category": "photography"
+}
+{
+    "category": "accessories"
+}
+{
+    "category": "smart-home"
+}

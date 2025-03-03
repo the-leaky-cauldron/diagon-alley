@@ -1,0 +1,99 @@
+{
+    "name": "Amazon Echo Dot (5th Gen)",
+    "description": "Smart speaker with Alexa",
+    "manufacturer": "Amazon",
+    "productCategory": "smart-home",
+    "price": 5499,
+    "discount": 10,
+    "imageUrl": "https://image.amazon.com/echo-dot.png",
+    "tags": ["amazon", "alexa", "smart-speaker", "home"],
+    "rating": 9.1
+}
+{
+    "name": "Anker PowerCore 20000mAh",
+    "description": "High-capacity fast-charging power bank",
+    "manufacturer": "Anker Innovations",
+    "productCategory": "accessories",
+    "price": 3999,
+    "discount": 15,
+    "imageUrl": "https://image.anker.com/powercore.png",
+    "tags": ["anker", "powerbank", "charging", "accessories"],
+    "rating": 8.8
+}
+{
+    "name": "Canon EOS R6",
+    "description": "Mirrorless full-frame camera with 4K video",
+    "manufacturer": "Canon Inc.",
+    "productCategory": "photography",
+    "price": 189999,
+    "discount": 6,
+    "imageUrl": "https://image.canon.com/eos-r6.png",
+    "tags": ["canon", "camera", "dslr", "photography"],
+    "rating": 9.2
+}
+{
+    "name": "TP-Link Archer AX6000",
+    "description": "WiFi 6 Router with dual-band support",
+    "manufacturer": "TP-Link Technologies",
+    "productCategory": "networking",
+    "price": 17999,
+    "discount": 10,
+    "imageUrl": "https://image.tplink.com/ax6000.png",
+    "tags": ["tplink", "router", "wifi6", "networking"],
+    "rating": 8.9
+}
+{
+    "name": "PlayStation 5",
+    "description": "Next-gen gaming console with ultra-fast SSD",
+    "manufacturer": "Sony Interactive Entertainment",
+    "productCategory": "gaming",
+    "price": 49999,
+    "discount": 5,
+    "imageUrl": "https://image.sony.com/ps5.png",
+    "tags": ["playstation", "ps5", "gaming", "console"],
+    "rating": 9.6
+}
+{
+    "name": "Garmin Fenix 7",
+    "description": "Premium GPS smartwatch with advanced features",
+    "manufacturer": "Garmin Ltd.",
+    "productCategory": "wearables",
+    "price": 69999,
+    "discount": 7,
+    "imageUrl": "https://image.garmin.com/fenix7.png",
+    "tags": ["garmin", "smartwatch", "fitness", "wearable"],
+    "rating": 9.4
+}
+{
+    "name": "LG OLED C3 55-inch",
+    "description": "4K OLED Smart TV with AI ThinQ",
+    "manufacturer": "LG Electronics",
+    "productCategory": "home-entertainment",
+    "price": 129999,
+    "discount": 12,
+    "imageUrl": "https://image.lg.com/oled-c3.png",
+    "tags": ["lg", "tv", "oled", "smart-tv"],
+    "rating": 9.7
+}
+{
+    "name": "Sony WF-1000XM5",
+    "description": "Noise-canceling wireless earbuds",
+    "manufacturer": "Sony Corporation",
+    "productCategory": "audio",
+    "price": 19999,
+    "discount": 8,
+    "imageUrl": "https://image.sony.com/wf1000xm5.png",
+    "tags": ["sony", "earbuds", "audio", "wireless"],
+    "rating": 9.3
+}
+{
+    "name": "MacBook Air M2",
+    "description": "Apple MacBook Air with M2 chip",
+    "manufacturer": "Apple Inc.",
+    "productCategory": "computers",
+    "price": 114999,
+    "discount": 10,
+    "imageUrl": "https://image.apple.com/macbook-air.png",
+    "tags": ["apple", "macbook", "laptop", "computers"],
+    "rating": 9.8
+}
