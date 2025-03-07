@@ -47,6 +47,8 @@ Diagon Alley is a magical marketplace application inspired by the famous shoppin
 
 ## Project Structure
 
+```
+
 diagon-alley/
 ├── src/
 │ ├── main/
@@ -103,6 +105,7 @@ diagon-alley/
 │ └── test/ # Test classes
 ├── pom.xml # Maven configuration
 └── README.md # This file
+```
 
 ## Technologies Used
 
