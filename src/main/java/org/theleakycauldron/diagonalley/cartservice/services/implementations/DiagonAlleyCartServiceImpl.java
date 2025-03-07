@@ -19,6 +19,7 @@ import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyRemoveItemFr
 import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyUpdateCartResponseDTO;
 import org.theleakycauldron.diagonalley.cartservice.entities.Cart;
 import org.theleakycauldron.diagonalley.cartservice.entities.CartItem;
+import org.theleakycauldron.diagonalley.cartservice.repositories.DiagonAlleyRDBCartItemRepository;
 import org.theleakycauldron.diagonalley.cartservice.repositories.DiagonAlleyRDBCartRepository;
 import org.theleakycauldron.diagonalley.cartservice.services.DiagonAlleyCartService;
 import org.theleakycauldron.diagonalley.commons.utils.DiagonAlleyUtils;
@@ -34,15 +35,18 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
     private final DiagonAlleyRDBCartRepository cartRepository;
     private final DiagonAlleyOrderService orderService;
     private final DiagonAlleyPaymentService paymentService;
+    private final DiagonAlleyRDBCartItemRepository cartItemRepository;
 
     public DiagonAlleyCartServiceImpl(
         DiagonAlleyRDBCartRepository cartRepository,
         DiagonAlleyOrderService orderService,
-        DiagonAlleyPaymentService paymentService
+        DiagonAlleyPaymentService paymentService,
+        DiagonAlleyRDBCartItemRepository cartItemRepository
     ) {
         this.cartRepository = cartRepository;
         this.orderService = orderService;
         this.paymentService = paymentService;
+        this.cartItemRepository = cartItemRepository;
     }
 
 
@@ -74,9 +78,12 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
         cart.getItems().add(cartItem);
         cart.setTotalPrice(cart.getTotalPrice() + (request.getPrice() * request.getQuantity()));
 
-        cartRepository.save(cart);
+        cartItem.setCart(cart);
 
-        return DiagonAlleyUtils.convertCartToCartResponseDto(request, cart);
+        Cart updatedCart = cartRepository.save(cart);
+
+
+        return DiagonAlleyUtils.convertCartToCartResponseDto(userId, request, cart);
 
     }
 
@@ -91,15 +98,30 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
         
         Cart cart = cartOptional.get();
 
-        Stream<CartItem> cartItemsStream = cart.getItems().stream();
+//        Stream<CartItem> cartItemsStream = cart.getItems().stream();
 
-        Predicate<CartItem> predicate = cartItem -> cartItem.getProductId().equals(productId);
-        CartItem cartItem = cartItemsStream.filter(predicate).findFirst().orElseThrow(() -> new RuntimeException("Item not found in the cart"));
-        int cartItemQuantity = cartItem.getQuantity();
-        Double cartItemUnitPrice = cartItem.getUnitPrice();
+//        Predicate<CartItem> predicate = cartItem -> cartItem.getProductId().equals(productId);
+//        CartItem cartItem = cartItemsStream.filter(item -> item.getProductId().equals(productId)).findFirst().orElseThrow(() -> new RuntimeException("Item not found in the cart"));
+//        int cartItemQuantity = cartItem.getQuantity();
+//        Double cartItemUnitPrice = cartItem.getUnitPrice();
+//        List<CartItem> updatedCartList = cart.getItems().stream().filter(item -> !item.getProductId().equals(productId)).collect(Collectors.toCollection(ArrayList::new));
+//        cart.setItems(updatedCartList);
 
-        List<CartItem> updatedCartList = cart.getItems().stream().filter(item -> !item.getProductId().equals(productId)).toList();
-        cart.setItems(updatedCartList);
+        List<CartItem> cartItems = cart.getItems();
+
+        int cartItemQuantity = 0;
+        double cartItemUnitPrice = 0;
+
+        for(CartItem cartItem : cartItems){
+            if(cartItem.getProductId().equals(productId)){
+                cartItemQuantity = cartItem.getQuantity();
+                cartItemUnitPrice = cartItem.getUnitPrice();
+            }
+        }
+
+        cartItems.removeIf(cartItem -> cartItem.getProductId().equals(productId));
+        cart.setItems(cartItems);
+
         cart.setUpdatedAt(LocalDateTime.now());
 
         cart.setTotalPrice(cart.getTotalPrice() - (cartItemQuantity * cartItemUnitPrice));
@@ -112,32 +134,33 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
     @Override
     public DiagonAlleyUpdateCartResponseDTO updateItemQuantity(String userId, String productId, int quantity) {
     
-        Cart cart = cartRepository.findCartByUserId(userId).orElseThrow(() -> new RuntimeException("No cart found"));
-        LocalDateTime now = LocalDateTime.now();
+            Cart cart = cartRepository.findCartByUserId(userId).orElseThrow(() -> new RuntimeException("No cart found"));
+            LocalDateTime now = LocalDateTime.now();
+            cart.setUpdatedAt(now);
 
-        cart.setUpdatedAt(now);
-        Predicate<CartItem> cartPredicate = cartItem -> cartItem.getProductId().equals(productId);
-        CartItem cartItem = cart.getItems().stream().filter(cartPredicate).findFirst().orElseThrow(() -> new RuntimeException("No such item found in cart"));
+            CartItem cartItem = cart.getItems().stream()
+                    .filter(item -> item.getProductId().equals(productId))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("No such item found in cart"));
 
-        // Setting up quantity in items
-        if(quantity >= cartItem.getQuantity()) {
+            int cartItemQuantity = cartItem.getQuantity();
 
-            cart.getItems().remove(cartItem);
+            if (quantity == 0) {
+                // ✅ Explicitly remove the item from the database
+                cartItemRepository.delete(cartItem);
+                cart.getItems().remove(cartItem);
+            } else {
+                cartItem.setQuantity(quantity);
+            }
 
-        }else {
-            cart.getItems().forEach(item -> {
-                if(item.getProductId().equals(productId)) {
-                    item.setQuantity(item.getQuantity() - quantity);
-                }
-            });
-        }
-        // Setting up total price in cart
-        cart.setTotalPrice(cart.getTotalPrice() - quantity * cartItem.getUnitPrice());
+            // ✅ Update the total price in cart
+            double effectivePrice = cart.getTotalPrice() - (cartItemQuantity * cartItem.getUnitPrice()) + (quantity * cartItem.getUnitPrice());
+            cart.setTotalPrice(effectivePrice);
 
-        // Saving cart
-        cartRepository.save(cart);
+            // ✅ Save cart
+            cartRepository.save(cart);
 
-        return DiagonAlleyUtils.convertCartToUpdateCartResponseDTO(cart, productId);
+            return DiagonAlleyUtils.convertCartToUpdateCartResponseDTO(cart, productId);
 
     }
 
@@ -152,6 +175,7 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
 
             cart = Cart.builder()
                         .userId(userId)
+                        .uuid(UUID.randomUUID())
                         .items(new ArrayList<>())
                         .isDeleted(false)
                         .createdAt(now)

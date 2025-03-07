@@ -2,8 +2,10 @@ package org.theleakycauldron.diagonalley.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -27,14 +29,32 @@ public class DiagonAlleySecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
-                .csrf(csrf -> csrf.disable())
-                .httpBasic(httpBasic -> httpBasic.disable())
-                .formLogin(formLogin -> formLogin.disable())
+                .csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagement -> {
                     sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
-                .addFilterBefore(diagonAlleyJwtAuthenticationFilter, SecurityContextHolderFilter.class)
+                .authorizeHttpRequests(
+                        authorize -> {
+                            authorize
+//                                    .anyRequest().permitAll();
+                                    .requestMatchers("/swagger-ui/**").permitAll()
+                                    .requestMatchers("/swagger-ui.html").permitAll()
+                                    .requestMatchers("/v3/api-docs/**").permitAll()
+                                    .requestMatchers("/swagger-resources/**").permitAll()
+                                    .requestMatchers("/webjars/**").permitAll()
+                                    .requestMatchers("/payment/**").permitAll()
+//                                    .requestMatchers("/error", "/error/**").permitAll()
+                                    .anyRequest()
+                                    .authenticated();
+
+                        }
+
+                )
+                .addFilterAfter(diagonAlleyJwtAuthenticationFilter, SecurityContextHolderFilter.class)
             .build();
     }
 }

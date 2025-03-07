@@ -23,7 +23,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public abstract class BaseModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
     private UUID uuid;
     private LocalDateTime createdAt;

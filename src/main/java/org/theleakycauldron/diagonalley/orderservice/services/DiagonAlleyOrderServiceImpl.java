@@ -17,7 +17,7 @@ import org.theleakycauldron.diagonalley.orderservice.utils.DiagonAlleyOrderUtils
 @Service
 public class DiagonAlleyOrderServiceImpl implements DiagonAlleyOrderService{
 
-    private DiagonAlleyOrderRepository orderRepository;
+    private final DiagonAlleyOrderRepository orderRepository;
 
     public DiagonAlleyOrderServiceImpl(DiagonAlleyOrderRepository orderRepository) {
         this.orderRepository = orderRepository;

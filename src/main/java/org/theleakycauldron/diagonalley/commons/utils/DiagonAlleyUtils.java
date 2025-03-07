@@ -57,8 +57,9 @@ public class DiagonAlleyUtils {
                 .build();
     }
 
-    public static DiagonAlleyAddItemToCartResponseDTO convertCartToCartResponseDto(DiagonAlleyAddItemToCartRequestDTO request, Cart cart) {
+    public static DiagonAlleyAddItemToCartResponseDTO convertCartToCartResponseDto(String userId, DiagonAlleyAddItemToCartRequestDTO request, Cart cart) {
         return DiagonAlleyAddItemToCartResponseDTO.builder()
+                            .userId(userId)
                             .cartId(cart.getUuid().toString())
                             .quantity(request.getQuantity())
                             .productId(request.getProductUuid())
@@ -77,6 +78,7 @@ public class DiagonAlleyUtils {
     public static DiagonAlleyGetCartResponseDTO convertCartToGetCartResponseDTO(Cart cart) {
         return DiagonAlleyGetCartResponseDTO.builder()
                     .userId(cart.getUserId())
+                    .totalPrice(cart.getTotalPrice())
                     .products(
                         cart.getItems().stream().map(product -> DiagonAlleyCartItem.builder()
                                                                     .productId(product.getProductId())

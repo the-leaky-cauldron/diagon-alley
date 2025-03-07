@@ -1,6 +1,8 @@
 package org.theleakycauldron.diagonalley.cartservice.entities;
 
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.ManyToOne;
 import org.theleakycauldron.diagonalley.commons.basemodels.BaseModel;
 
 import jakarta.persistence.Entity;
@@ -21,5 +23,8 @@ public class CartItem extends BaseModel {
     private String productId;
     private int quantity;
     private Double unitPrice;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST})
+    private Cart cart;
 
 }

@@ -53,14 +53,15 @@ public class StripePaymentService implements DiagonAlleyPaymentService {
 
             // Create the checkout session
             SessionCreateParams params = SessionCreateParams.builder()
+                    .setExpiresAt((System.currentTimeMillis() / 1000) + (30 * 60))
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl(successUrl + "?orderId=" + order.getId())
-                .setCancelUrl(cancelUrl + "?orderId=" + order.getId())
+                .setSuccessUrl(successUrl + "?orderId=" + order.getUuid() + "&amount=" + order.getBillAmount().longValue())
+                .setCancelUrl(cancelUrl + "?orderId=" + order.getUuid())
                 .addAllLineItem(lineItems)
                 .setClientReferenceId(order.getTrackingNumber()) // To identify the order in webhooks
                 .putMetadata("orderId", order.getTrackingNumber())
                 .build();
-
+            System.out.println(stripeApiKey);
             Session session = Session.create(params);
             return session.getUrl();
             

@@ -1,5 +1,6 @@
 package org.theleakycauldron.diagonalley.orderservice.entities;
 
+import jakarta.persistence.ManyToOne;
 import org.theleakycauldron.diagonalley.commons.basemodels.BaseModel;
 
 import jakarta.persistence.Entity;
@@ -19,5 +20,8 @@ public class OrderItem extends BaseModel {
     private Integer quantity;
     private Double unitPrice;
     private Double totalPrice;
+
+    @ManyToOne
+    private Order order;
 
 }

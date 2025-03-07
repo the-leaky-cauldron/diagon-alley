@@ -2,6 +2,7 @@ package org.theleakycauldron.diagonalley.orderservice.entities;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import lombok.NoArgsConstructor;
 import org.theleakycauldron.diagonalley.commons.basemodels.BaseModel;
 
@@ -23,7 +24,11 @@ public class Order extends BaseModel{
     private String notes;
     private String trackingNumber;
     private Double billAmount;
-    @OneToMany
+    @OneToMany(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            orphanRemoval = true,
+            mappedBy = "order"
+    )
     private List<OrderItem> orderItems;
     private String userId;
 }

@@ -27,11 +27,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Cart extends BaseModel{
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE},
+            orphanRemoval = true,
+            mappedBy = "cart")
     private List<CartItem> items;
 
     private String userId;
 
-    private Double totalPrice;
+    private double totalPrice;
     
 }

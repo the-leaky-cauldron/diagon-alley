@@ -8,10 +8,10 @@ import org.theleakycauldron.diagonalley.orderservice.entities.OrderStatus;
 
 public interface DiagonAlleyOrderService {
     
-    public DiagonAlleyCreateOrderResponseDTO createOrder(Order order);
-    public void updateOrderStatus(String orderId, OrderStatus orderStatus);
-    public void deleteOrder(String uuid);
-    public DiagonAlleyGetOrderResponseDTO getOrder(String uuid);
-    public DiagonAlleyGetOrderListResponseDTO getOrders(String userId);
+    DiagonAlleyCreateOrderResponseDTO createOrder(Order order);
+    void updateOrderStatus(String orderId, OrderStatus orderStatus);
+    void deleteOrder(String uuid);
+    DiagonAlleyGetOrderResponseDTO getOrder(String uuid);
+    DiagonAlleyGetOrderListResponseDTO getOrders(String userId);
     
 }
