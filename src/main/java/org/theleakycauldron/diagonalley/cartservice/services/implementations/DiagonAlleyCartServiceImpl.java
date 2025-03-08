@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyAddItemToCartRequestDTO;
@@ -19,6 +17,10 @@ import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyRemoveItemFr
 import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyUpdateCartResponseDTO;
 import org.theleakycauldron.diagonalley.cartservice.entities.Cart;
 import org.theleakycauldron.diagonalley.cartservice.entities.CartItem;
+import org.theleakycauldron.diagonalley.cartservice.exceptions.CartAlreadyEmptyException;
+import org.theleakycauldron.diagonalley.cartservice.exceptions.InvalidCartToAddCartItemsException;
+import org.theleakycauldron.diagonalley.cartservice.exceptions.NoCartFoundException;
+import org.theleakycauldron.diagonalley.cartservice.exceptions.NoItemFoundInCartException;
 import org.theleakycauldron.diagonalley.cartservice.repositories.DiagonAlleyRDBCartItemRepository;
 import org.theleakycauldron.diagonalley.cartservice.repositories.DiagonAlleyRDBCartRepository;
 import org.theleakycauldron.diagonalley.cartservice.services.DiagonAlleyCartService;
@@ -69,7 +71,7 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
         // If not create a new cart add items into it
         if(cartOptional.isEmpty()){
 
-            throw new RuntimeException("Can't add cart to invalid cart");
+            throw new InvalidCartToAddCartItemsException("Can't add cart item to invalid cart");
 
         }
 
@@ -83,7 +85,7 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
         Cart updatedCart = cartRepository.save(cart);
 
 
-        return DiagonAlleyUtils.convertCartToCartResponseDto(userId, request, cart);
+        return DiagonAlleyUtils.convertCartToCartResponseDto(userId, request, updatedCart);
 
     }
 
@@ -93,7 +95,7 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
         Optional<Cart> cartOptional = cartRepository.findCartByUserId(userId);
 
         if(cartOptional.isEmpty()) {
-            throw new RuntimeException("Cart not available");
+            throw new NoCartFoundException("No cart found");
         }
         
         Cart cart = cartOptional.get();
@@ -134,33 +136,33 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
     @Override
     public DiagonAlleyUpdateCartResponseDTO updateItemQuantity(String userId, String productId, int quantity) {
     
-            Cart cart = cartRepository.findCartByUserId(userId).orElseThrow(() -> new RuntimeException("No cart found"));
-            LocalDateTime now = LocalDateTime.now();
-            cart.setUpdatedAt(now);
+        Cart cart = cartRepository.findCartByUserId(userId).orElseThrow(() -> new NoCartFoundException("No cart found"));
+        LocalDateTime now = LocalDateTime.now();
+        cart.setUpdatedAt(now);
 
-            CartItem cartItem = cart.getItems().stream()
-                    .filter(item -> item.getProductId().equals(productId))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("No such item found in cart"));
+        CartItem cartItem = cart.getItems().stream()
+                .filter(item -> item.getProductId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new NoItemFoundInCartException("No such item found in cart"));
 
-            int cartItemQuantity = cartItem.getQuantity();
+        int cartItemQuantity = cartItem.getQuantity();
 
-            if (quantity == 0) {
-                // ✅ Explicitly remove the item from the database
-                cartItemRepository.delete(cartItem);
-                cart.getItems().remove(cartItem);
-            } else {
-                cartItem.setQuantity(quantity);
-            }
+        if (quantity == 0) {
+            // ✅ Explicitly remove the item from the database
+            cartItemRepository.delete(cartItem);
+            cart.getItems().remove(cartItem);
+        } else {
+            cartItem.setQuantity(quantity);
+        }
 
-            // ✅ Update the total price in cart
-            double effectivePrice = cart.getTotalPrice() - (cartItemQuantity * cartItem.getUnitPrice()) + (quantity * cartItem.getUnitPrice());
-            cart.setTotalPrice(effectivePrice);
+        // ✅ Update the total price in cart
+        double effectivePrice = cart.getTotalPrice() - (cartItemQuantity * cartItem.getUnitPrice()) + (quantity * cartItem.getUnitPrice());
+        cart.setTotalPrice(effectivePrice);
 
-            // ✅ Save cart
-            cartRepository.save(cart);
+        // ✅ Save cart
+        cartRepository.save(cart);
 
-            return DiagonAlleyUtils.convertCartToUpdateCartResponseDTO(cart, productId);
+        return DiagonAlleyUtils.convertCartToUpdateCartResponseDTO(cart, productId);
 
     }
 
@@ -196,10 +198,7 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
 
         Optional<Cart> cartOptional = cartRepository.findCartByUserId(userId);
         if(cartOptional.isEmpty()) {
-
-            // TODO: Create new Exception for this type
-            throw new RuntimeException("Cart is already empty");
-
+            throw new CartAlreadyEmptyException("Cart is already empty");
         }
 
         Cart cart = cartOptional.get();
@@ -224,7 +223,8 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
 
         Optional<Cart> cartOptional = cartRepository.findCartByUserId(userId);
 
-        Cart cart = cartOptional.orElseThrow(() -> new RuntimeException("Cart not found"));
+        // TODO: Create new Exception
+        Cart cart = cartOptional.orElseThrow(() -> new NoCartFoundException("No cart found"));
 
         double totalPrice = cart.getTotalPrice();
         List<CartItem> cartItems = cart.getItems();
@@ -257,7 +257,4 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
                     .paymentLink(paymentLink)
                     .build();
     }
-
-
-    
 }

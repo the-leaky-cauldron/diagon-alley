@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.theleakycauldron.diagonalley.orderservice.entities.Order;
+import org.theleakycauldron.diagonalley.paymentservice.exceptions.StripeSessionNotCreatedException;
 
 import com.stripe.Stripe;
 import com.stripe.model.checkout.Session;
@@ -66,7 +67,7 @@ public class StripePaymentService implements DiagonAlleyPaymentService {
             return session.getUrl();
             
         } catch (Exception e) {
-            throw new RuntimeException("Error creating Stripe session", e);
+            throw new StripeSessionNotCreatedException("Error creating Stripe session", e);
         }
     }
     

@@ -11,6 +11,8 @@ import org.theleakycauldron.diagonalley.orderservice.dtos.DiagonAlleyGetOrderLis
 import org.theleakycauldron.diagonalley.orderservice.dtos.DiagonAlleyGetOrderResponseDTO;
 import org.theleakycauldron.diagonalley.orderservice.entities.Order;
 import org.theleakycauldron.diagonalley.orderservice.entities.OrderStatus;
+import org.theleakycauldron.diagonalley.orderservice.exceptions.CannotModifyDeletedOrderException;
+import org.theleakycauldron.diagonalley.orderservice.exceptions.OrderNotFoundException;
 import org.theleakycauldron.diagonalley.orderservice.repositories.DiagonAlleyOrderRepository;
 import org.theleakycauldron.diagonalley.orderservice.utils.DiagonAlleyOrderUtils;
 
@@ -40,13 +42,13 @@ public class DiagonAlleyOrderServiceImpl implements DiagonAlleyOrderService{
         Optional<Order> persistedOrderOptional = orderRepository.findOrderByUuid(UUID.fromString(orderId));
 
         if(persistedOrderOptional.isEmpty()) {
-            throw new RuntimeException("Order not found");
+            throw new OrderNotFoundException("Order not found");
         }
 
         Order persistedOrder = persistedOrderOptional.get();
         
         if(persistedOrder.isDeleted()) {
-            throw new RuntimeException("Cannot modify deleted order");
+            throw new CannotModifyDeletedOrderException("Cannot modify deleted order");
         }
 
         persistedOrder.setUpdatedAt(now);
@@ -65,7 +67,7 @@ public class DiagonAlleyOrderServiceImpl implements DiagonAlleyOrderService{
         LocalDateTime now = LocalDateTime.now();
 
         if(persistedOrder.isEmpty()) {
-            throw new RuntimeException("Order not found");
+            throw new OrderNotFoundException("Order not found");
         }
 
         Order order = persistedOrder.get();
@@ -79,7 +81,7 @@ public class DiagonAlleyOrderServiceImpl implements DiagonAlleyOrderService{
         Optional<Order> persistedOrder = orderRepository.findOrderByUuid(UUID.fromString(uuid));
 
         if(persistedOrder.isEmpty()) {
-            throw new RuntimeException("Order not found");
+            throw new OrderNotFoundException("Order not found");
         }
 
         Order order = persistedOrder.get();
@@ -93,7 +95,7 @@ public class DiagonAlleyOrderServiceImpl implements DiagonAlleyOrderService{
     
         List<Order> orders = orderRepository.findAllOrdersByUserId(userId);
         if(orders.isEmpty()) {
-            throw new RuntimeException("No orders found");
+            throw new OrderNotFoundException("Order not found");
         }
 
         orders = orders.stream().filter(order -> !order.isDeleted()).toList();
