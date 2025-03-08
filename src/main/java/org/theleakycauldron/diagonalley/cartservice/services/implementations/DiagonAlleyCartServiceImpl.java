@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyAddItemToCartRequestDTO;
@@ -83,7 +81,7 @@ public class DiagonAlleyCartServiceImpl implements DiagonAlleyCartService {
         Cart updatedCart = cartRepository.save(cart);
 
 
-        return DiagonAlleyUtils.convertCartToCartResponseDto(userId, request, cart);
+        return DiagonAlleyUtils.convertCartToCartResponseDto(userId, request, updatedCart);
 
     }
 
