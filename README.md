@@ -1,34 +1,116 @@
 # Diagon Alley
 
 ## Overview
+
 Diagon Alley is a magical marketplace application inspired by the famous shopping district from the wizarding world. This Spring Boot application enables users to browse, sell, and purchase magical items and supplies.
 
 ## Features
-- **User Authentication**: Secure login and registration system using Spring Security
+
+- **User Authentication**: Secure login using Spring Security
 - **Product Catalog**: Browse various magical items by category
 - **Shopping Cart**: Add items and proceed to checkout
-- **User Profiles**: Manage account details and view order history
 - **Search Functionality**: Find specific items quickly
-- **Admin Dashboard**: Manage products, users, and orders
 
 ## Installation
 
 ### Prerequisites
-- Java JDK 11 or higher
+
+- Java JDK 17 or higher
 - Maven 3.6+ or Gradle 7.0+
-- MySQL/PostgreSQL database
+- PostgreSQL database, Elastic Search, Kafka
 
 ### Steps
+
 1. Clone the repository:
-   ```
+
+   ```sh
    git clone https://github.com/yourusername/diagon-alley.git
    cd diagon-alley
    ```
 
-2. Configure database connection in `src/main/resources/application.properties` or `application.yml`
+2. Install Kafka ─ I have followed this [link](https://hub.docker.com/r/bitnami/kafka) to install kafka in docker
 
-3. Build the application:
+3. Install Postgres ─ I have ran this docker-compose file to spin up ```Postgres``` and ```PgAdmin```
+
+```yml
+services:
+  postgresdb:
+    container_name: postgrescontainer
+    image: postgres:16.1
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresvolume:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  pgadmin:
+    container_name: pgadmincontainer
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_DEFAULT_ADDRESS: 6000
+      PGADMIN_LISTEN_PORT: 6000
+    expose:
+      - 6000
+    ports:
+      - 7000:6000
+    volumes:
+      - pgadminvolume:/var/lib/pgadmin
+
+   volumes:
+   pgadminvolume:
+   postgresvolume:
+```
+
+4. Install Elastic search ─ Follow this [guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/run-elasticsearch-locally.html)
+
+5. Configure database connection in `src/main/resources/application.properties` or `application.yml`
+
+6. Configure environmental variables:
+
+   The application requires the following environmental variables:
+   
+   - `ES_USER`: Elasticsearch username
+   - `ES_PASS`: Elasticsearch password
+   - `DB_USER`: PostgreSQL database username
+   - `DB_PASS`: PostgreSQL database password
+
+   **For Linux/macOS:**
+   ```sh
+   export ES_USER=your_elasticsearch_username
+   export ES_PASS=your_elasticsearch_password
+   export DB_USER=your_database_username
+   export DB_PASS=your_database_password
    ```
+
+   **For Windows Command Prompt:**
+   ```cmd
+   set ES_USER=your_elasticsearch_username
+   set ES_PASS=your_elasticsearch_password
+   set DB_USER=your_database_username
+   set DB_PASS=your_database_password
+   ```
+
+   **For Windows PowerShell:**
+   ```powershell
+   $env:ES_USER="your_elasticsearch_username"
+   $env:ES_PASS="your_elasticsearch_password"
+   $env:DB_USER="your_database_username"
+   $env:DB_PASS="your_database_password"
+   ```
+
+7. Build the application:
+
+   ```sh
    # If using Maven
    mvn clean install
    
@@ -36,8 +118,9 @@ Diagon Alley is a magical marketplace application inspired by the famous shoppin
    ./gradlew build
    ```
 
-4. Run the application:
-   ```
+8. Run the application:
+
+   ```sh
    # If using Maven
    mvn spring-boot:run
    
@@ -68,35 +151,35 @@ diagon-alley/
 │ │ │ ├── configurations/ # Configuration files of DiagonAlley
 │ │ │ ├── dtos/ # DTO(s) of DiagonAlley
 │ │ │ ├── orderservice/ # Order service of DiagonAlley
-│ │ │ │ ├── dtos/ # Service layer of Cart service
-│ │ │ │ ├── entities/ # Service layer of Cart service
-│ │ │ │ ├── repositories/ # Service layer of Cart service
-│ │ │ │ ├── services/ # Service layer of Cart service
-│ │ │ │ ├── utils/ # Service layer of Cart service
+│ │ │ │ ├── dtos/ # Service layer of Order service
+│ │ │ │ ├── entities/ # Service layer of Order service
+│ │ │ │ ├── repositories/ # Service layer of Order service
+│ │ │ │ ├── services/ # Service layer of Order service
+│ │ │ │ ├── utils/ # Service layer of Order service
 │ │ │ ├── outboxservice/ # Outbox service of DiagonAlley
-│ │ │ │ ├── controlleradvices/ # Service layer of Cart service
-│ │ │ │ ├── dtos/ # Service layer of Cart service
-│ │ │ │ ├── entities/ # Service layer of Cart service
-│ │ │ │ ├── exceptions/ # Service layer of Cart service
-│ │ │ │ ├── listeners/ # Service layer of Cart service
-│ │ │ │ ├── repositories/ # Service layer of Cart service
-│ │ │ │ ├── services/ # Service layer of Cart service
+│ │ │ │ ├── controlleradvices/ # Controller Advices of Outbox service
+│ │ │ │ ├── dtos/ # DTO(s) of Outbox service
+│ │ │ │ ├── entities/ #  Entities of Outbox service
+│ │ │ │ ├── exceptions/ # Exceptions of Outbox service
+│ │ │ │ ├── listeners/ # Listeners of Outbox service
+│ │ │ │ ├── repositories/ # Repository layer of Outbox service
+│ │ │ │ ├── services/ # Service layer of Outbox service
 │ │ │ ├── paymentservice/ # Payment service of DiagonAlley
-│ │ │ │ ├── controllers/ # Service layer of Cart service
-│ │ │ │ ├── dtos/ # Service layer of Cart service
-│ │ │ │ ├── enums/ # Service layer of Cart service
-│ │ │ │ ├── services/ # Service layer of Cart service
+│ │ │ │ ├── controllers/ # Controller layer of Payment service
+│ │ │ │ ├── dtos/ # DTO(s) of Payment service
+│ │ │ │ ├── enums/ # Enums of Payment service
+│ │ │ │ ├── services/ # Service layer of Payment service
 │ │ │ ├── productservice/ # Product service of DiagonAlley
-│ │ │ │ ├── configurations/ # Service layer of Cart service
-│ │ │ │ ├── controllers/ # Service layer of Cart service
-│ │ │ │ ├── dtos/ # Service layer of Cart service
-│ │ │ │ ├── entities/ # Service layer of Cart service
-│ │ │ │ ├── exceptions/ # Service layer of Cart service
-│ │ │ │ ├── repositories/ # Service layer of Cart service
+│ │ │ │ ├── configurations/ #  Configurations of Cart service
+│ │ │ │ ├── controllers/ # Controller layers of Cart service
+│ │ │ │ ├── dtos/ # DTO(s) of Cart service
+│ │ │ │ ├── entities/ # Entities of Cart service
+│ │ │ │ ├── exceptions/ # Exceptions of Cart service
+│ │ │ │ ├── repositories/ # Repository of Cart service
 │ │ │ │ ├── services/ # Service layer of Cart service
-│ │ │ │ ├── validation/ # Service layer of Cart service
-│ │ │ ├── security/ # Security related file of DiagonAlley
-│ │ │ │ ├── filters/ # Service layer of Cart service
+│ │ │ │ ├── validation/ # Validations of Cart service
+│ │ │ ├── security/ # Security files of DiagonAlley
+│ │ │ │ ├── filters/ # Filters of DiagonAlley
 │ │ │ └── DiagonAlleyApplication.java # Main class
 │ │ └── resources/ # Configuration files and static resources
 │ │ ├── static/
@@ -115,6 +198,7 @@ diagon-alley/
 - **Testing**: JUnit, Mockito, Spring Test
 - **Build Tool**: Maven/Gradle
 - **Deployment**: Docker
+- **Other Tools**: Kafka
 
 ## API Documentation
 

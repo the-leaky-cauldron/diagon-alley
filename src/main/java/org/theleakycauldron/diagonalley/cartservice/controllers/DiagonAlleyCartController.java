@@ -13,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/diagon-alley/cart")
+@RequestMapping("/cart-service")
 @Tag(name = "Diagon alley Cart API", description = "API for managing cart")
 public class DiagonAlleyCartController {
 

@@ -41,7 +41,6 @@ public class DiagonAlleyJwtAuthenticationFilter extends OncePerRequestFilter{
 
         System.out.println(jwt);
 
-
         if((jwt == null || jwt.isEmpty()) && request.getAttribute("JWT_TOKEN") == null){
 
             System.out.println("JWT is missing");

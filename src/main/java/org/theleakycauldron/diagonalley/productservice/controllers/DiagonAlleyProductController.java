@@ -29,7 +29,7 @@ import jakarta.validation.Valid;
  */
 
 @RestController
-@RequestMapping("/diagonalley/product-service")
+@RequestMapping("/product-service")
 public class DiagonAlleyProductController {
 
     private final DiagonAlleyProductService diagonAlleyService;
