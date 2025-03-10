@@ -7,7 +7,7 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.theleakycauldron.diagonalley.commons.utils.DiagonAlleyUtils;
-import org.theleakycauldron.diagonalley.dtos.DiagonAlleyKafkaRequestDTO;
+import org.theleakycauldron.diagonalley.dtos.DiagonAlleyProductKafkaRequestDTO;
 import org.theleakycauldron.diagonalley.outboxservice.dtos.OutboxEventDTO;
 import org.theleakycauldron.diagonalley.outboxservice.entities.*;
 import org.theleakycauldron.diagonalley.outboxservice.repositories.DiagonAlleyRDBOutboxRepository;
@@ -40,7 +40,7 @@ public class DiagonAlleyOutboxEventListener {
         boolean isUpdate = outboxEventDTO.isUpdated();
         log.info("Listening to outbox event :: {}", outbox.toString());
         try{
-            DiagonAlleyKafkaRequestDTO kafkaRequestDTO = DiagonAlleyUtils.convertProductToKafkaRequestDTO(outbox.getProductJpaEntity());
+            DiagonAlleyProductKafkaRequestDTO kafkaRequestDTO = DiagonAlleyUtils.convertProductToKafkaRequestDTO(outbox.getProductJpaEntity());
             CompletableFuture<SendResult<String, String>> kafkaMessage = null;
             if(!isUpdate)
                 kafkaMessage = kafkaTemplate.send("diagon-alley-create", kafkaRequestDTO.toString());

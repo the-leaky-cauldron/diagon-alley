@@ -4,8 +4,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+import org.theleakycauldron.diagonalley.dtos.DiagonAlleyOrderStatusKafkaRequestDTO;
 import org.theleakycauldron.diagonalley.orderservice.dtos.DiagonAlleyCreateOrderResponseDTO;
 import org.theleakycauldron.diagonalley.orderservice.dtos.DiagonAlleyGetOrderListResponseDTO;
 import org.theleakycauldron.diagonalley.orderservice.dtos.DiagonAlleyGetOrderResponseDTO;
@@ -20,9 +24,14 @@ import org.theleakycauldron.diagonalley.orderservice.utils.DiagonAlleyOrderUtils
 public class DiagonAlleyOrderServiceImpl implements DiagonAlleyOrderService{
 
     private final DiagonAlleyOrderRepository orderRepository;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public DiagonAlleyOrderServiceImpl(DiagonAlleyOrderRepository orderRepository) {
+    public DiagonAlleyOrderServiceImpl(
+        DiagonAlleyOrderRepository orderRepository,
+        KafkaTemplate<String, String> kafkaTemplate
+    ) {
         this.orderRepository = orderRepository;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
@@ -56,6 +65,22 @@ public class DiagonAlleyOrderServiceImpl implements DiagonAlleyOrderService{
 
 
         orderRepository.save(persistedOrder);
+
+        DiagonAlleyOrderStatusKafkaRequestDTO requestDTO = DiagonAlleyOrderStatusKafkaRequestDTO.builder()
+                                                                    .orderStatus(orderStatus.name())
+                                                                    .userId(persistedOrder.getUserId())
+                                                                    .build();
+        try {
+
+            CompletableFuture<SendResult<String, String>> kafkaMessage = null;
+            kafkaMessage = kafkaTemplate.send("order-status-changed", requestDTO.toString());
+
+            kafkaMessage.whenComplete((result, ex) -> {
+                if(ex != null ) throw new RuntimeException(ex.getMessage());
+            });
+        }catch(Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
 
 
     }

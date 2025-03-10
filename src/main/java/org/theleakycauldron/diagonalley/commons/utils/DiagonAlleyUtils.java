@@ -1,5 +1,6 @@
 package org.theleakycauldron.diagonalley.commons.utils;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyAddItemToCartRequestDTO;
 import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyAddItemToCartResponseDTO;
 import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyCartItem;
@@ -8,11 +9,11 @@ import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyGetCartRespo
 import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyRemoveItemFromCartResponseDTO;
 import org.theleakycauldron.diagonalley.cartservice.dtos.DiagonAlleyUpdateCartResponseDTO;
 import org.theleakycauldron.diagonalley.cartservice.entities.Cart;
-import org.theleakycauldron.diagonalley.dtos.DiagonAlleyKafkaRequestDTO;
 import org.theleakycauldron.diagonalley.productservice.dtos.DiagonAlleyGetProductResponseDTO;
 import org.theleakycauldron.diagonalley.productservice.dtos.DiagonAlleyGetProductsResponseDTO;
 import org.theleakycauldron.diagonalley.productservice.entities.ProductJpaEntity;
 import org.theleakycauldron.diagonalley.productservice.entities.documents.ProductDocument;
+import org.theleakycauldron.diagonalley.dtos.DiagonAlleyProductKafkaRequestDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,17 +24,11 @@ import java.util.stream.Collectors;
  */
 
 public class DiagonAlleyUtils {
-    public static DiagonAlleyKafkaRequestDTO convertProductToKafkaRequestDTO(ProductJpaEntity productJpaEntity){
-        return DiagonAlleyKafkaRequestDTO.builder()
+    public static DiagonAlleyProductKafkaRequestDTO convertProductToKafkaRequestDTO(ProductJpaEntity productJpaEntity){
+        return DiagonAlleyProductKafkaRequestDTO.builder()
+                .userId(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString())
+                .productId(productJpaEntity.getUuid().toString())
                 .name(productJpaEntity.getName())
-                .description(productJpaEntity.getDescription())
-                .amount(productJpaEntity.getPrice().getAmount())
-                .discount(productJpaEntity.getPrice().getDiscount())
-                .imageURL(productJpaEntity.getImageURL())
-                .productCategory(productJpaEntity.getProductCategory().getName())
-                .manufacturer(productJpaEntity.getManufacturer().getName())
-                .tags(productJpaEntity.getTags())
-                .rating(productJpaEntity.getRating())
                 .build();
     }
 
