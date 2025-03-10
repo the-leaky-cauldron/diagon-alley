@@ -24,7 +24,7 @@ Diagon Alley is a magical marketplace application inspired by the famous shoppin
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/the-leaky-cauldron/the-sorting-hat
+   git clone https://github.com/the-leaky-cauldron/diagon-alley
    cd diagon-alley
    ```
 

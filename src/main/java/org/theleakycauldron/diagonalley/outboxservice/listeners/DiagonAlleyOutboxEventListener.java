@@ -43,9 +43,9 @@ public class DiagonAlleyOutboxEventListener {
             DiagonAlleyProductKafkaRequestDTO kafkaRequestDTO = DiagonAlleyUtils.convertProductToKafkaRequestDTO(outbox.getProductJpaEntity());
             CompletableFuture<SendResult<String, String>> kafkaMessage = null;
             if(!isUpdate)
-                kafkaMessage = kafkaTemplate.send("diagon-alley-create", kafkaRequestDTO.toString());
+                kafkaMessage = kafkaTemplate.send("diagon-alley-product-create", kafkaRequestDTO.toString());
             else
-                kafkaMessage = kafkaTemplate.send("diagon-alley-update", kafkaRequestDTO.toString());
+                kafkaMessage = kafkaTemplate.send("diagon-alley-product-update", kafkaRequestDTO.toString());
             kafkaMessage.whenComplete((result, ex) -> {
                 if(ex != null)  throw new RuntimeException(ex.getMessage());
             });
