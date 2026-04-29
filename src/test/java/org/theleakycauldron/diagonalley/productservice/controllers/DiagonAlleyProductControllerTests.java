@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.theleakycauldron.diagonalley.productservice.dtos.DiagonAlleyCreateProductRequestDTO;
 import org.theleakycauldron.diagonalley.productservice.dtos.DiagonAlleyCreateProductResponseDTO;
 import org.theleakycauldron.diagonalley.productservice.services.DiagonAlleyProductService;
@@ -36,6 +36,20 @@ public class DiagonAlleyProductControllerTests {
     private ObjectMapper objectMapper;
 
     private DiagonAlleyCreateProductRequestDTO requestDTO;
+
+    public DiagonAlleyProductControllerTests() {
+        this.requestDTO = new DiagonAlleyCreateProductRequestDTO(
+                "Nimbus 2000",
+                "A fast broom",
+                "Quality Brooms",
+                "Brooms",
+                1250.0,
+                0.0,
+                "https://example.com/broom.png",
+                java.util.List.of("sports", "magic"),
+                4.9
+        );
+    }
 
     @Test
     void addProductTest_Success() throws Exception {
